@@ -25,22 +25,42 @@ export const dragAndDropModule = (
     }
 
     const onDragEnter = (e: DragEvent) => {
-      e.preventDefault();
-      const target = e.target as HTMLLIElement;
-      target.classList.add('dragover');
+      const event = e as ExtendedDragEvent;
+      event.preventDefault();
+      const target = event.target as HTMLLIElement;
+      if (event.dataTransfer) {
+        const draggedSrcElId = event.dataTransfer.getData('application/rankings')
+
+        // early return if target and dragged elements are the same
+        if (target.id === draggedSrcElId) return
+
+        const isBefore = isTargetElementBeforeDraggedElement(target, document.getElementById(draggedSrcElId)!)
+        if (isBefore) {
+          target.classList.add('dragover-top');
+        } else {
+          target.classList.add('dragover-bottom');
+        }
+      } else {
+        // acts as a fallback in the event dataTransfer attribute is falsy
+        target.classList.add('dragover-bottom');
+      }
     }
 
     const onDragLeave = (e: DragEvent) => {
       e.preventDefault();
       const target = e.target as HTMLLIElement;
-      target.classList.remove('dragover');
+      target.classList.remove('dragover-top');
+      target.classList.remove('dragover-bottom');
     }
 
     const onDragEnd = (e: DragEvent) => {
       e.preventDefault();
       const target = e.target as HTMLLIElement;
       Array.from(target.parentNode?.children ?? []).forEach(
-        (child) => child.classList.remove('dragover')
+        (child) => {
+          child.classList.remove('dragover-top')
+          child.classList.remove('dragover-bottom')
+        }
       )
     }
 
@@ -51,7 +71,12 @@ export const dragAndDropModule = (
         const dropPositionEl = event.target as HTMLLIElement
         const draggedSrcElId = event.dataTransfer.getData('application/rankings');
         const draggedSrcEl = document.getElementById(draggedSrcElId) as HTMLLIElement;
-        dropPositionEl.after(draggedSrcEl)
+        const isBefore = isTargetElementBeforeDraggedElement(dropPositionEl, draggedSrcEl)
+        if (isBefore) {
+          dropPositionEl.before(draggedSrcEl)
+        } else {
+          dropPositionEl.after(draggedSrcEl)
+        }
       }
     }
 
@@ -65,3 +90,11 @@ export const dragAndDropModule = (
     }
   }()
 )
+
+function isTargetElementBeforeDraggedElement(targetEl: HTMLElement, draggedEl: HTMLElement) {
+  const parentNode = targetEl.parentNode;
+  const childrenArray = Array.from(parentNode?.children ?? [])
+  const targetElPosition = childrenArray.indexOf(targetEl)
+  const draggedElPosition = childrenArray.indexOf(draggedEl)
+  return targetElPosition < draggedElPosition
+}

@@ -76,11 +76,16 @@ li {
   box-sizing: border-box;
   padding: 2px 10px;
   cursor: move;
+  border-top: 1px solid transparent;
   border-bottom: 1px solid transparent;
 }
 
-.dragover {
+.dragover-bottom {
   border-bottom-color: #646cff;
+}
+
+.dragover-top {
+  border-top-color: #646cff;
 }
 
 p {
