@@ -1,6 +1,6 @@
 import { bubbleSortChoicesWithUserInput } from "./bubbleSortChoices";
 import { Choice, initialState } from "./initialState";
-import { clearContainer } from "./domUtils";
+import { clearContainer, dragAndDropModule } from "./domUtils";
 
 export function setupStart(triggerElement: HTMLButtonElement, container: HTMLDivElement) {
   triggerElement.textContent = 'Start ranking';
@@ -10,13 +10,26 @@ export function setupStart(triggerElement: HTMLButtonElement, container: HTMLDiv
     const results = bubbleSortChoicesWithUserInput([...initialState]);
     displayResults(results, container);
     triggerElement.textContent = 'Rank again';
+    const p = document.createElement('p');
+    p.textContent = 'Alternatively, tweak your rankings by dragging and dropping the choices as you wish.'
+    container.appendChild(p)
   })
 }
 
 function displayResults(results: Choice[], container: HTMLDivElement) {
   const ol = document.createElement('ol');
-  ol.innerHTML = `
-    ${results.map(result => `<li>${result.name}</li>`).join('')}
-  `;
+  results.forEach((result, index) => {
+    const li = document.createElement('li');
+    li.textContent = result.name;
+    li.setAttribute('id', `result-${index.toString()}`);
+    li.draggable = true;
+    li.addEventListener('dragstart', dragAndDropModule.onDragStart)
+    li.addEventListener('dragover', dragAndDropModule.onDragOver)
+    li.addEventListener('dragenter', dragAndDropModule.onDragEnter)
+    li.addEventListener('dragleave', dragAndDropModule.onDragLeave)
+    li.addEventListener('dragend', dragAndDropModule.onDragEnd)
+    li.addEventListener('drop', dragAndDropModule.onDrop)
+    ol.append(li)
+  })
   container.append(ol);
 }

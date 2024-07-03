@@ -63,9 +63,26 @@ button:focus-visible {
 
 .ranking {
   display: flex;
-  justify-content: center;
+  align-items: center;
+  flex-direction: column-reverse;
+}
+
+ol {
+  max-width: max-content;
+  user-select: none;
 }
 
 li {
-  padding: 2px 5px;
+  box-sizing: border-box;
+  padding: 2px 10px;
+  cursor: move;
+  border-bottom: 1px solid transparent;
+}
+
+.dragover {
+  border-bottom-color: #646cff;
+}
+
+p {
+  color: #A0A083
 }
